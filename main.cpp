@@ -15,11 +15,11 @@ class Polinomio{
   private:
     string invertirCadena(string);
     void formatUnTermino(string);
+    void formatTerminos();
+    void obtenerTerminos();
   public:
     Polinomio(char* _pol[], int);
     int obtenerRaices();
-    void obtenerTerminos();//pasar a private despues de hacer el empaquetador
-    void formatTerminos();
     void showPol();
 };
 
@@ -112,6 +112,8 @@ void Polinomio::formatTerminos(){
 };
 
 void Polinomio::showPol(){
+  obtenerTerminos();
+  formatTerminos();
   cout<<"polinomio: "<<pol<<endl;
   //cout<<"Largo string: "<<largo<<endl;
   cout<<"grado: "<<grado<<endl;
@@ -130,8 +132,6 @@ void Polinomio::showPol(){
 
 int main(int argc, char* argv[]) {
   Polinomio p1 = Polinomio(argv,argc);
-  p1.obtenerTerminos();
-  p1.formatTerminos();
   p1.showPol();
   return 0;
 }

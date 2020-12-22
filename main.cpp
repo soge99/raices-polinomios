@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <math.h>
+#define delta 0.000001
 
 using namespace std;
 
@@ -12,15 +14,22 @@ class Polinomio{
     int largo; //largo entero, considerando signos como (**)
     vector<string> terminos;//vector de monomios
     vector<string> terminosF;
+    vector<float> raices;
   private:
     string invertirCadena(string);
     void formatUnTermino(string);
     void formatTerminos();
     void obtenerTerminos();
+    void verificarCero();
+    void posiblesRaices();
+    bool verificarRaiz(float);
+    bool evaluarPolinomio(float);
   public:
     Polinomio(char* _pol[], int);
-    int obtenerRaices();
+    void obtenerRaices();
     void showPol();
+    void mostrarTerminos();
+    void mostrarRaices();
 };
 
 Polinomio::Polinomio(char* _pol[], int argc){
@@ -69,10 +78,12 @@ void Polinomio::formatUnTermino(string cadena){
       tempBase = '1';
       tempExp = '1';
       grado = 1;
+      terminosF.resize(grado+1);
     }else{
       tempBase = cadena[0];
       tempExp = '0';
       grado = 0;
+      terminosF.resize(grado+1);
     }
   }else{
     for(int i =largoCadena -1; i>=0; i--){
@@ -130,8 +141,125 @@ void Polinomio::showPol(){
   
 };
 
+void Polinomio::mostrarTerminos(){
+  int largo = terminosF.size();
+  for (int i=0; i < largo ; i++){
+    if(terminosF[i] == "") cout << "termino " << i << ": " << "0" << endl;
+    else{
+    cout << "termino " << i << ": " << terminosF[i] << endl;
+
+    }
+  }
+}
+
+void Polinomio::mostrarRaices(){
+  int largo = raices.size();
+  cout << "=== Resultado ===" << endl << endl;
+  for(int i=0; i<largo; i++){
+    cout << "x" << i+1 << " = " << raices[i] << endl;
+  }
+  /*
+  cout << endl << "=== Integrantes ===" << endl;
+  cout <<"Roberto Albornoz" << endl;
+  cout <<"Kevin Peralta" << endl;
+  cout <<"Sebastián Santelices" << endl;
+  */
+}
+
+void Polinomio::verificarCero(){ // verifica si 0 es raíz 
+  if(grado>0 && terminosF[0] == ""){
+    raices.push_back(0);
+    while(grado>0 && terminosF[0] == ""){
+      grado--;
+      terminosF.erase(terminosF.begin());
+    }
+  }
+}
+
+bool Polinomio::verificarRaiz(float raiz){
+  largo = raices.size();
+  for (int i=0; i<largo ; i++){
+    if(raiz == raices[i]) return true;
+  }
+  return false;
+}
+
+bool Polinomio::evaluarPolinomio(float n){
+  int largo = terminosF.size();
+  float suma = 0;
+  for (int i=0; i<largo ; i++){
+    if(terminosF[i]!=""){
+      suma += stoi(terminosF[i])*(pow(n,i));
+    }
+  }
+  //cout << "n=" << n << " - " << suma << endl;
+  if( suma == 0 || (-1*delta < suma && suma < delta )) return true;
+  return false;
+}
+
+void Polinomio::posiblesRaices(){
+  vector<float> multiplosTi;
+  vector<float> multiplosCi;
+  vector<float> posiblesRaices;
+  if(grado > 0){
+    int terminoIndependiente, coeficienteInicial;
+    if(stoi(terminosF[0])<0){
+      terminoIndependiente = -1*stof(terminosF[0]);
+    }else{
+      terminoIndependiente = stof(terminosF[0]);
+    }
+
+    if(stoi(terminosF[terminosF.size()-1]) < 0){
+      coeficienteInicial = -1*stof(terminosF[terminosF.size()-1]);
+    }else{
+      coeficienteInicial = stof(terminosF[terminosF.size()-1]);
+    }
+    multiplosTi.push_back(1);
+    multiplosTi.push_back(terminoIndependiente);
+    multiplosCi.push_back(1);
+    multiplosCi.push_back(coeficienteInicial);
+    
+    for (int i=2; i<terminoIndependiente/2 ; i++){
+      if(terminoIndependiente % i == 0) multiplosTi.push_back(i);
+    }
+    for (int i=2; i<coeficienteInicial/2 ; i++){
+      if(coeficienteInicial%i == 0) multiplosCi.push_back(i);
+    }
+    int largomti = multiplosTi.size();
+    int largomci = multiplosCi.size();
+    for (int i=0; i < largomti ; i++){
+      for(int j = 0 ; j < largomci ; j ++){
+        posiblesRaices.push_back(multiplosTi[i]/multiplosCi[j]);
+      }
+    }
+    int largoRaices = posiblesRaices.size();
+    //for(int i =0; i < largoRaices;i++) cout << posiblesRaices[i] << ", ";
+    //cout << endl;
+    for (int i = 0 ; i< largoRaices ; i++){
+      if(evaluarPolinomio(posiblesRaices[i]) && !verificarRaiz(posiblesRaices[i])) {
+        raices.push_back(posiblesRaices[i]);
+        grado--;
+      }
+      if(evaluarPolinomio((-1)*posiblesRaices[i]) && !verificarRaiz((-1)*posiblesRaices[i])) {
+        raices.push_back(-1*posiblesRaices[i]);
+        grado--;
+      }
+    }
+  }
+}
+
+void Polinomio::obtenerRaices(){ // renombrar a verificar cero
+  verificarCero();
+  posiblesRaices();
+  mostrarRaices();
+}
+
+
+
 int main(int argc, char* argv[]) {
   Polinomio p1 = Polinomio(argv,argc);
   p1.showPol();
+  p1.mostrarTerminos();
+  p1.obtenerRaices();
   return 0;
 }

@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -126,7 +127,6 @@ void Polinomio::formatUnTermino(string cadena){
 void Polinomio::formatTerminos(){
   int numTerminos = terminos.size();
   //int numTerminosF = terminosF.size();
-  cout<<"N terminos:"<<numTerminos<<endl;
   
   for (int i =0; i < numTerminos; i++){
     formatUnTermino(terminos[i]);
@@ -138,24 +138,6 @@ void Polinomio::formatTerminos(){
   */
 };
 
-void Polinomio::showPol(){
-  obtenerTerminos();
-  formatTerminos();
-  cout<<"polinomio: "<<pol<<endl;
-  //cout<<"Largo string: "<<largo<<endl;
-  cout<<"grado: "<<grado<<endl;
-  int largo = terminos.size();
-  int largo2 = terminosF.size();
-  cout<<"terminos-------------------------"<<endl;
-  for(int i = 0; i<largo; i++){
-    cout<<terminos[i]<<endl;
-  }
-  cout<<"format test---------------------"<<endl;
-  for(int i = 0; i<largo2; i++){
-    cout<<terminosF[i]<<endl;
-  }
-  
-};
 
 void Polinomio::mostrarTerminos(){
   int largo = terminosF.size();
@@ -174,12 +156,10 @@ void Polinomio::mostrarRaices(){
   for(int i=0; i<largo; i++){
     cout << "x" << i+1 << " = " << raices[i] << endl;
   }
-  /*
-  cout << endl << "=== Integrantes ===" << endl;
+  cout << endl << "=== Integrantes ===" << endl << endl;
   cout <<"Roberto Albornoz" << endl;
   cout <<"Kevin Peralta" << endl;
   cout <<"Sebastián Santelices" << endl;
-  */
 }
 
 void Polinomio::verificarCero(){ // verifica si 0 es raíz 
@@ -208,9 +188,82 @@ bool Polinomio::evaluarPolinomio(float n){
       suma += stoi(terminosF[i])*(pow(n,i));
     }
   }
-  //cout << "n=" << n << " - " << suma << endl;
   if( suma == 0 || (-1*delta < suma && suma < delta )) return true;
   return false;
+}
+
+vector<int> Polinomio::ruffini(int n){
+  int Grado = terminosF.size();
+  int coef;
+  int terminof;
+  vector<int> ruffini;
+  if(terminosF[Grado-1] == ""){
+    ruffini.push_back(0);
+  }else{
+    ruffini.push_back(stoi(terminosF[Grado-1]));
+  }
+  for (int i=1; i<Grado ; i++){
+    if(terminosF[Grado-1-i] == ""){
+      terminof = 0;
+    }else{
+      terminof = stoi(terminosF[Grado-1-i]);
+    }
+    coef = n*ruffini[i-1] + terminof;
+    ruffini.push_back(coef);
+  }
+  return ruffini;
+}
+
+void Polinomio::mostrarRuffini(){
+  vector<int> ruf = ruffini(-1);
+  largo = ruf.size();
+  for (int i=0; i<largo; i++){
+    cout<< ruf[i] << ", ";
+  }cout << endl;
+}
+
+bool Polinomio::esCotaMayor(vector<int> ruff){
+  int largo = ruff.size();
+  for (int i=0; i<largo ; i++){
+    if(ruff[i]<0) return false;
+  }
+  return true;
+}
+
+bool Polinomio::esCotaMenor(vector<int> ruff){
+  int largo = ruff.size();
+  for (int i=1; i<largo ; i++){
+    if(ruff[i] == 0 && ruff[i-1] == 0) return false;
+    if(ruff[i]*ruff[i-1]>0) return false;
+  }
+  return true;
+}
+
+int Polinomio::cotaMayor(){
+  vector<int> resultadoRuff;
+  for (int i=-500000; i<500000 ; i++){
+    if(i!=0) i++;
+    resultadoRuff=ruffini(i);
+    if( esCotaMayor(resultadoRuff) ) return i;
+  }
+  return -500000;
+}
+
+int Polinomio::cotaMenor(){
+  vector<int> resultadoRuff;
+  for (int i=500000; i>-500000 ; i--){
+    if(i==0) i--;
+    resultadoRuff=ruffini(i);
+    if(esCotaMenor(resultadoRuff)) return i;
+  }
+  return 500000;
+}
+
+void Polinomio::encontrarCotas(){
+  int cMayor, cMenor;
+  cMayor=cotaMayor();
+  cMenor=cotaMenor();
+  cout << "cota menor " << cMenor << " cota mayor " << cMayor << endl;
 }
 
 void Polinomio::posiblesRaices(){
@@ -224,7 +277,6 @@ void Polinomio::posiblesRaices(){
     }else{
       terminoIndependiente = stof(terminosF[0]);
     }
-
     if(stoi(terminosF[terminosF.size()-1]) < 0){
       coeficienteInicial = -1*stof(terminosF[terminosF.size()-1]);
     }else{
@@ -233,12 +285,11 @@ void Polinomio::posiblesRaices(){
     multiplosTi.push_back(1);
     multiplosTi.push_back(terminoIndependiente);
     multiplosCi.push_back(1);
-    multiplosCi.push_back(coeficienteInicial);
-    
-    for (int i=2; i<terminoIndependiente/2 ; i++){
+    multiplosCi.push_back(coeficienteInicial); 
+    for (int i=2; i<=terminoIndependiente/2 ; i++){
       if(terminoIndependiente % i == 0) multiplosTi.push_back(i);
     }
-    for (int i=2; i<coeficienteInicial/2 ; i++){
+    for (int i=2; i<=coeficienteInicial/2 ; i++){
       if(coeficienteInicial%i == 0) multiplosCi.push_back(i);
     }
     int largomti = multiplosTi.size();
@@ -249,23 +300,29 @@ void Polinomio::posiblesRaices(){
       }
     }
     int largoRaices = posiblesRaices.size();
-    //for(int i =0; i < largoRaices;i++) cout << posiblesRaices[i] << ", ";
-    //cout << endl;
     for (int i = 0 ; i< largoRaices ; i++){
-      if(evaluarPolinomio(posiblesRaices[i]) && !verificarRaiz(posiblesRaices[i])) {
-        raices.push_back(posiblesRaices[i]);
+      if(evaluarPolinomio(posiblesRaices[i]) ) {
         grado--;
+        if(!verificarRaiz(posiblesRaices[i])){
+          raices.push_back(posiblesRaices[i]);
+        }
       }
-      if(evaluarPolinomio((-1)*posiblesRaices[i]) && !verificarRaiz((-1)*posiblesRaices[i])) {
-        raices.push_back(-1*posiblesRaices[i]);
+      if(evaluarPolinomio((-1)*posiblesRaices[i])) {
         grado--;
+        if(!verificarRaiz((-1)*posiblesRaices[i])){
+          raices.push_back(-1*posiblesRaices[i]);
+        }  
       }
     }
   }
+  sort(raices.begin(),raices.end());
 }
 
-void Polinomio::obtenerRaices(){ // renombrar a verificar cero
+void Polinomio::obtenerRaices(){ 
+  obtenerTerminos();
+  formatTerminos();
   verificarCero();
   posiblesRaices();
   mostrarRaices();
+  encontrarCotas();
 }

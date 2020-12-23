@@ -8,8 +8,6 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
   Polinomio p1 = Polinomio(argv,argc);
-  p1.showPol();
-  p1.mostrarTerminos();
   p1.obtenerRaices();
   return 0;
 }

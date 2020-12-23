@@ -32,6 +32,11 @@ class Polinomio{
     void posiblesRaices();
     bool verificarRaiz(float);
     bool evaluarPolinomio(float);
+    vector<int> ruffini(int n);
+    bool esCotaMayor(vector<int>);
+    bool esCotaMenor(vector<int>);
+    int cotaMayor();
+    int cotaMenor();
   
   public:
     // constructor, requiere un polinomio que provienede un arreglo de caracteres y un entero quereciba el largo de la cadena
@@ -41,4 +46,6 @@ class Polinomio{
     void obtenerRaices();
     void mostrarTerminos();
     void mostrarRaices();
+    void mostrarRuffini();
+    void encontrarCotas();
 };

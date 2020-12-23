@@ -19,6 +19,10 @@ class Polinomio{
     void formatUnTermino(string);
     //metodo auxiliar del metodo formatUnTermino que invierte una cadena de texto
     string invertirCadena(string);
+    void detGrado(int);
+    bool esCorrecto(char);
+    string getCoef(string);
+    string getExp(string);
 
     //Recorre un vector de terminos y añade a un vector terminosF con el formato terminosF[exponente] = Base
     void formatTerminos();

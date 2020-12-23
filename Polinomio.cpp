@@ -48,46 +48,79 @@ void Polinomio::obtenerTerminos(){
   }
 };
 
-//falta contemplar terminos tipo {x,-x,n, nx,-nx}
-void Polinomio::formatUnTermino(string cadena){
+void Polinomio::detGrado(int exp){
+  if(exp > grado){
+    grado = exp;
+  }
+};
+
+bool Polinomio::esCorrecto(char caracter){
+  bool base = true;
+  if(caracter == '*' || caracter == 'x'){
+    base = false;
+  }
+  return(base);
+}
+
+string Polinomio::getCoef(string cadena){
   string tempBase = "";
-  string tempExp = "";
-  //int numTerminos = terminos.size();
   int largoCadena = cadena.length();
-  if(largoCadena == 1){
-    if(cadena[0] == 'x'){
-      tempBase = '1';
-      tempExp = '1';
-      grado = 1;
-      terminosF.resize(grado+1);
-    }else{
-      tempBase = cadena[0];
-      tempExp = '0';
-      grado = 0;
-      terminosF.resize(grado+1);
-    }
-  }else{
-    for(int i =largoCadena -1; i>=0; i--){
-      if(cadena[i] != '*' ){
-        tempExp += cadena[i];
-    
-      }else{
-        if(grado< stoi(tempExp)){
-          grado = stoi(tempExp);
-          terminosF.resize(grado+1);
-        }
-        break; 
+  bool seguir = true;
+  for(int i = 0; i < largoCadena; i++){
+    if(esCorrecto(cadena[i]) == false){
+        seguir = false;
       }
-    }
-    for(int i = 0; i < largoCadena; i++){
-      if(cadena[i] != 'x'){
-        tempBase += cadena[i];
-      }else{
-        break;
-      }
+    //obtiene la base de terminos del tipo 2x**3
+    if(cadena[i] != 'x' && seguir){
+      tempBase+=cadena[i];
+    }else if(cadena[i] == 'x' && i ==0){
+      tempBase='1';
+    }else if(cadena[i]=='x' && cadena[i-1] == '-'){
+      tempBase ="-1";
     }
   }
-  terminosF[stoi(tempExp)]=tempBase;
+  return (tempBase);
+};
+
+string Polinomio::getExp(string cadena){ 
+  string tempExp = "";
+  int largoCadena = cadena.length();
+  bool seguir = true;
+  for(int i = largoCadena -1; i >= 0; i--){
+      if(esCorrecto(cadena[i]) == false){
+        seguir = false;
+      }
+      if(cadena[i] != '*' && seguir && cadena.find('x') != std::string::npos){
+        tempExp+=cadena[i];
+        tempExp=invertirCadena(tempExp);
+        detGrado(stoi(tempExp));//determina el grado del polinomio con el exponente mas grande
+      }else if(cadena[i] == 'x' && i ==0 && largoCadena == 1){
+        tempExp='1';
+        detGrado(stoi(tempExp));
+      }else if(isdigit(cadena[i]) && esCorrecto(cadena[i]) && cadena.find('x') == std::string::npos){
+        tempExp = "0";
+        detGrado(stoi(tempExp));
+      }else if(cadena[i] == 'x' && i == largoCadena-1){
+        tempExp ="1"; 
+        detGrado(stoi(tempExp));
+      }
+    }
+    return(tempExp);
+};
+
+//falta contemplar terminos tipo {x,-x,n, nx,-nx}
+void Polinomio::formatUnTermino(string cadena){
+  string tempExp= getExp(cadena);
+  string tempBase = getCoef(cadena);
+  //cout<<"Base: "<< tempBase<<endl;
+  //cout<<"Exp: "<< tempExp<<endl;
+  try{
+    terminosF.resize(grado+1);
+    terminosF[stoi(tempExp)]=tempBase;
+  }catch(int e){
+    cout<<"Ocurrio un error redimensionando el vector, tamaño insuficiente o negativo "<<endl;
+  }
+  //cout<<"grado: "<<grado<<endl;
 };
 
 void Polinomio::formatTerminos(){

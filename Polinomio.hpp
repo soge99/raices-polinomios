@@ -42,10 +42,7 @@ class Polinomio{
     // constructor, requiere un polinomio que provienede un arreglo de caracteres y un entero quereciba el largo de la cadena
     Polinomio(char* _pol[], int);
     // Funcion usada en el desarrollo para mostrar propiedades del polinomio
-    void showPol();
     void obtenerRaices();
-    void mostrarTerminos();
     void mostrarRaices();
-    void mostrarRuffini();
     void encontrarCotas();
 };

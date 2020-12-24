@@ -11,8 +11,10 @@ using namespace std;
 
 #define delta 0.000001
 
-
-Polinomio::Polinomio(char* _pol[], int argc){
+/*
+Constructor de clase
+*/
+Polinomio::Polinomio(char* _pol[], int argc){ 
   for(int i = 1; i < argc; i++){
     pol += _pol[i];
   }
@@ -71,7 +73,6 @@ string Polinomio::getCoef(string cadena){
     if(esCorrecto(cadena[i]) == false){
         seguir = false;
       }
-    //obtiene la base de terminos del tipo 2x**3
     if(cadena[i] != 'x' && seguir){
       tempBase+=cadena[i];
     }else if(cadena[i] == 'x' && i ==0){
@@ -94,7 +95,7 @@ string Polinomio::getExp(string cadena){
       if(cadena[i] != '*' && seguir && cadena.find('x') != std::string::npos){
         tempExp+=cadena[i];
         tempExp=invertirCadena(tempExp);
-        detGrado(stoi(tempExp));//determina el grado del polinomio con el exponente mas grande
+        detGrado(stoi(tempExp));
       }else if(cadena[i] == 'x' && i ==0 && largoCadena == 1){
         tempExp='1';
         detGrado(stoi(tempExp));
@@ -109,47 +110,33 @@ string Polinomio::getExp(string cadena){
     return(tempExp);
 };
 
-//falta contemplar terminos tipo {x,-x,n, nx,-nx}
+/*
+Da el formato adecuado a la expresión ingresada por consola para poder trabajar con ella
+*/
 void Polinomio::formatUnTermino(string cadena){
   string tempExp= getExp(cadena);
   string tempBase = getCoef(cadena);
-  //cout<<"Base: "<< tempBase<<endl;
-  //cout<<"Exp: "<< tempExp<<endl;
   try{
     terminosF.resize(grado+1);
     terminosF[stoi(tempExp)]=tempBase;
   }catch(int e){
     cout<<"Ocurrio un error redimensionando el vector, tamaño insuficiente o negativo "<<endl;
   }
-  //cout<<"grado: "<<grado<<endl;
 };
 
+/*
+da formato a cada expresión del polinomio
+*/
 void Polinomio::formatTerminos(){
   int numTerminos = terminos.size();
-  //int numTerminosF = terminosF.size();
-  
   for (int i =0; i < numTerminos; i++){
     formatUnTermino(terminos[i]);
   }
-  /*
-  for (int i =0; i < numTerminosF; i++){
-    cout<<terminosF[i]<<endl;
-  }
-  */
+
 };
-
-
-void Polinomio::mostrarTerminos(){
-  int largo = terminosF.size();
-  for (int i=0; i < largo ; i++){
-    if(terminosF[i] == "") cout << "termino " << i << ": " << "0" << endl;
-    else{
-    cout << "termino " << i << ": " << terminosF[i] << endl;
-
-    }
-  }
-}
-
+/*
+Imprime por pantalla el resultado esperado según formato solicitado
+*/
 void Polinomio::mostrarRaices(){
   int largo = raices.size();
   cout << "=== Resultado ===" << endl << endl;
@@ -161,7 +148,9 @@ void Polinomio::mostrarRaices(){
   cout <<"Kevin Peralta" << endl;
   cout <<"Sebastián Santelices" << endl;
 }
-
+/*
+Verifica si el valor 0 es raiz del polinomio y su multiplicidad
+*/
 void Polinomio::verificarCero(){ // verifica si 0 es raíz 
   if(grado>0 && terminosF[0] == ""){
     raices.push_back(0);
@@ -172,6 +161,9 @@ void Polinomio::verificarCero(){ // verifica si 0 es raíz
   }
 }
 
+/*
+verifica si la raiz encontrada se encuentra entre los valores de raiz aceptados
+*/
 bool Polinomio::verificarRaiz(float raiz){
   largo = raices.size();
   for (int i=0; i<largo ; i++){
@@ -180,6 +172,9 @@ bool Polinomio::verificarRaiz(float raiz){
   return false;
 }
 
+/*
+evalua el valor n en el polinomio ingresado para verificar si es una raiz o no
+*/
 bool Polinomio::evaluarPolinomio(float n){
   int largo = terminosF.size();
   float suma = 0;
@@ -192,6 +187,9 @@ bool Polinomio::evaluarPolinomio(float n){
   return false;
 }
 
+/*
+Metodo de division de polinomios por (x-n), entrega el cociente y el resto en un vector
+*/
 vector<int> Polinomio::ruffini(int n){
   int Grado = terminosF.size();
   int coef;
@@ -214,14 +212,10 @@ vector<int> Polinomio::ruffini(int n){
   return ruffini;
 }
 
-void Polinomio::mostrarRuffini(){
-  vector<int> ruf = ruffini(-1);
-  largo = ruf.size();
-  for (int i=0; i<largo; i++){
-    cout<< ruf[i] << ", ";
-  }cout << endl;
-}
-
+/*
+verifica si el valor n encontrado con el metodo cotaMayor() es una cota mayor de las raices del polinomio
+es decir, todas las raices son menores que dicho valor
+*/
 bool Polinomio::esCotaMayor(vector<int> ruff){
   int largo = ruff.size();
   for (int i=0; i<largo ; i++){
@@ -229,7 +223,10 @@ bool Polinomio::esCotaMayor(vector<int> ruff){
   }
   return true;
 }
-
+/*
+verifica si el valor n encontrado con el metodo cotaMenor() es una cota menor de las raices del polinomio
+es decir, todas las raices son mayores que dicho valor
+*/
 bool Polinomio::esCotaMenor(vector<int> ruff){
   int largo = ruff.size();
   for (int i=1; i<largo ; i++){
@@ -239,6 +236,10 @@ bool Polinomio::esCotaMenor(vector<int> ruff){
   return true;
 }
 
+/*
+evalua dentro de un intervalo (-500000,500000) valoers de n enteros para determinar 
+la cota mayor de las raices reales del polinomio
+*/
 int Polinomio::cotaMayor(){
   vector<int> resultadoRuff;
   for (int i=-500000; i<500000 ; i++){
@@ -248,7 +249,10 @@ int Polinomio::cotaMayor(){
   }
   return -500000;
 }
-
+/*
+evalua dentro de un intervalo (-500000,500000) valoers de n enteros para determinar 
+la cota menor de las raices reales del polinomio
+*/
 int Polinomio::cotaMenor(){
   vector<int> resultadoRuff;
   for (int i=500000; i>-500000 ; i--){
@@ -258,7 +262,10 @@ int Polinomio::cotaMenor(){
   }
   return 500000;
 }
-
+/*
+Encuentra las cotas mayor y menor de las raices reales del polinomio
+#No fue implementada
+*/
 void Polinomio::encontrarCotas(){
   int cMayor, cMenor;
   cMayor=cotaMayor();
@@ -266,6 +273,12 @@ void Polinomio::encontrarCotas(){
   cout << "cota menor " << cMenor << " cota mayor " << cMayor << endl;
 }
 
+/*
+Ti = termino independiente, ed A tal que Ax**0
+Ci = Coeficiente inicial, ed B tal que Bx**n con n grado del polinomio
+el metodo encuentra las posibles raices reales determinadas por el metodo de Gauss
+y verifica si son raiz del polinomio
+*/
 void Polinomio::posiblesRaices(){
   vector<float> multiplosTi;
   vector<float> multiplosCi;
@@ -319,10 +332,15 @@ void Polinomio::posiblesRaices(){
 }
 
 void Polinomio::obtenerRaices(){ 
-  obtenerTerminos();
-  formatTerminos();
-  verificarCero();
-  posiblesRaices();
-  mostrarRaices();
-  encontrarCotas();
+  obtenerTerminos(); // Se obtienen los terminos del polinomio
+  formatTerminos(); // Se da formato a dichos terminos
+  verificarCero(); // se verifica si 0 es raiz
+  posiblesRaices(); // se verifican todas las posibles raices por metodo de Gauss
+  mostrarRaices(); // se despliegan los resultados según formato indicado
 }
+
+/*
+#No se implemento metodo para encontrar soluciones complejas del polinomio
+#No se pudieron encontrar todas las soluciones reales ya que no se implemento algún algoritmo
+de busqueda además del metodo de Gauss 
+*/
